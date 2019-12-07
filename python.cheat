@@ -1,0 +1,4 @@
+% python, web
+
+# 在当前目录下启动一个小型web服务器
+python3 -m http.server <port>

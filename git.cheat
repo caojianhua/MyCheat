@@ -1,0 +1,7 @@
+% git, code
+
+# 覆盖提交
+git commit --amend
+
+# 查找丢失的提交记录
+git reflog

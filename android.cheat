@@ -1,0 +1,16 @@
+% android, adb, apk
+
+# 获取Android应用签名MD5/sha1/SHA256等证书指纹
+keytool -v -list -keystore  <keystore>
+
+# 获取Android应用key hash 散列值
+keytool -exportcert -alias <alias> -keystore <keystore> | openssl sha1 -binary | openssl base64
+
+# 查看apk信息
+aapt dump badging <path>
+
+# 显示当前activity堆栈
+adb shell dumpsys activity activities | sed -En -e '/Running activities/,/Run #0/p'
+
+# 保存当前截屏
+adb shell /system/bin/screencap -p /sdcard/screenshot.png && adb pull /sdcard/screenshot.png <output> && adb shell rm /sdcard/screenshot.png
