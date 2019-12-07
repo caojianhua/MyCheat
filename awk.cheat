@@ -1,0 +1,13 @@
+%awk, text
+
+# 文件按列过滤打印
+cat <input_text> | awk '{print $1,$2,$3}'
+
+# 文件按列去重
+cat <input_text> | uniq
+
+# 文件搜索列
+cat <input_text> | awk '{if ($2=="<search_text>") {print $1,$2,$3} }' 
+
+# 文件去重后输出重复行数
+cat <input_text> | uniq | wc -l

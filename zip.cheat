@@ -1,0 +1,4 @@
+%zip, file
+
+# 将文件压缩成几个小文件
+zip - <input_zip> | split -b 500k -a 3 - <output_zip>
