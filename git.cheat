@@ -5,3 +5,9 @@ git commit --amend
 
 # 查找丢失的提交记录
 git reflog
+
+# 统计某个用户的提交次数和行数
+git log --author=<name> --pretty=tformat: --numstat | awk '{ add += $1 ; subs += $2 ; loc += $1 - $2 } END { printf "added lines: %s removed lines : %s total lines: %s\n",add,subs,loc }'
+
+# 统计所有人的提交次数
+git shortlog -s -n
