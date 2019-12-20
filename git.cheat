@@ -11,3 +11,9 @@ git log --author=<name> --pretty=tformat: --numstat | awk '{ add += $1 ; subs +=
 
 # 统计所有人的提交次数
 git shortlog -s -n
+
+# 删除远程tag
+git push origin :refs/tags/<tag>
+
+# 删除远程分支
+git push origin :<branch>

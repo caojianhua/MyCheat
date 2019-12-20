@@ -1,0 +1,20 @@
+% ip, udp, tcp, http
+
+# 扫描服务器端口是否开放
+nc -vv <IP> <PORT>
+
+# tcpdump 抓包输出pcap文件
+tcpdump -i eth0 -A -s 0 'dst or src (<host1> or <host2>)  and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)' -w httpdump-2018062711.pcap
+
+
+# 安装tinyproxy代理服务器, 配置文件路径/etc/tinyproxy.conf
+apt install tinyproxy
+
+# 启动tinyproxy代理服务器
+sudo service tinyproxy start
+
+# 重启tinyproxy代理服务器
+sudo service tinyproxy restart
+
+# 停止tinyproxy代理服务器
+sudo service tinyproxy stop
