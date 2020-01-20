@@ -1,0 +1,17 @@
+% docker
+
+# docker 查看当前运行的所有容器
+docker ps -a
+
+# docker 查看当前所有的镜像
+docker image ls
+
+# docker 删除容器
+docker container rm <CONTAINER_ID>
+
+# docker 删除镜像
+docker image rm <IMAGE_ID>
+
+# docker 进入容器
+docker -it exec /bin/bash <CONTAINER_ID> 
+

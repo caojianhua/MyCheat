@@ -14,3 +14,11 @@ adb shell dumpsys activity activities | sed -En -e '/Running activities/,/Run #0
 
 # 保存当前截屏
 adb shell /system/bin/screencap -p /sdcard/screenshot.png && adb pull /sdcard/screenshot.png <output> && adb shell rm /sdcard/screenshot.png
+
+# 开启日志输出
+adb shell setprop log.tag.<tag> VERBOSE
+
+# 过滤日志级别
+adb logcat -s "*:<level>"
+
+$ level: printf "V\nD\nI\nW\nE\nA"
