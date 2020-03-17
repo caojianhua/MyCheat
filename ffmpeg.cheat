@@ -5,15 +5,15 @@ ffmpeg -i <input_video> -c copy -map 0 -f segment -segment_list playlist.m3u8 -s
 
 # ffmpeg 发送 H264裸流
 ffmpeg -re -i ./IMG_1330.h264 -vcodec copy -f rtp rtp://127.0.0.1:6666>video.sdp
-ffmpeg -re -fflags +genpts -i ./IMG_1330.h264   -vf fps=30 -f rtp rtp://127.0.0.1:6666>video.sdp
+ffmpeg -re -fflags +genpts -i ./IMG_1330.h264 -vf fps=30 -f rtp rtp://127.0.0.1:6666>video.sdp
 
 # ffmpeg 接收RTP流保存ts文件
-ffmpeg -protocol_whitelist rtp,udp,sdp,file  -i video.sdp -c:v libx264 -c:a copy  -f segment -segment_time 4 -segment_list test.m3u8  -segment_format mpegts stream%05d.ts
-ffmpeg -protocol_whitelist rtp,udp,sdp,file  -i video.sdp -vf fps=30  -f hls -hls_time 3 -hls_playlist_type vod test.m3u8
-ffmpeg -protocol_whitelist rtp,udp,sdp,file  -i video.sdp -vf fps=30  -f segment -segment_time 3 -segment_list test.m3u8  -segment_format mpegts stream%03d.ts
+ffmpeg -protocol_whitelist rtp,udp,sdp,file -i video.sdp -c:v libx264 -c:a copy -f segment -segment_time 4 -segment_list test.m3u8 -segment_format mpegts stream%05d.ts
+ffmpeg -protocol_whitelist rtp,udp,sdp,file -i video.sdp -vf fps=30 -f hls -hls_time 3 -hls_playlist_type vod test.m3u8
+ffmpeg -protocol_whitelist rtp,udp,sdp,file -i video.sdp -vf fps=30 -f segment -segment_time 3 -segment_list test.m3u8 -segment_format mpegts stream%03d.ts
 
 # ffmpeg打开摄像头获取数据, 以RTP流形式发出
-ffmpeg -f avfoundation -framerate 30 -i "0" -target pal-vcd  -f rtp rtp://127.0.0.1:6666>video.sdp
+ffmpeg -f avfoundation -framerate 30 -i "0" -target pal-vcd -f rtp rtp://127.0.0.1:6666>video.sdp
 
 # ffplay播放 rtmp流
 ffplay -i rtmp://localhost:1935/rtmplive/room

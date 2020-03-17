@@ -1,0 +1,7 @@
+% file, find, search
+
+# 当前目录查找文件
+find . -maxdepth 1 -name "<name>"
+
+# 从当前目录开始递归查找文件
+find . -name "<name>"

@@ -13,7 +13,9 @@ aapt dump badging <path>
 adb shell dumpsys activity activities | sed -En -e '/Running activities/,/Run #0/p'
 
 # 保存当前截屏
-adb shell /system/bin/screencap -p /sdcard/screenshot.png && adb pull /sdcard/screenshot.png <output> && adb shell rm /sdcard/screenshot.png
+adb shell /system/bin/screencap -p /sdcard/screenshot.png && adb pull /sdcard/screenshot.png <shot_dir>/$(date '+%Y%m%d%H%M%S').png && adb shell rm /sdcard/screenshot.png
+
+$ shot_dir: printf "~/Downloads/\n~/Desktop/"
 
 # 开启日志输出
 adb shell setprop log.tag.<tag> VERBOSE
@@ -22,3 +24,5 @@ adb shell setprop log.tag.<tag> VERBOSE
 adb logcat -s "*:<level>"
 
 $ level: printf "V\nD\nI\nW\nE\nA"
+
+
