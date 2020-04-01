@@ -1,7 +1,16 @@
-% file, find, search
+% file, find, search, zip
 
 # 当前目录查找文件
 find . -maxdepth 1 -name "<name>"
 
 # 从当前目录开始递归查找文件
 find . -name "<name>"
+
+# 列出某个目录下的所有文件
+find <dir> -type f -follow -print
+
+# 压缩某个目录下的所有文件(保留目录结构)
+find <dir> -type f -follow -print | zip <ZipFileName> -@
+
+# 压缩某个目录下的所有文件(忽略目录结构)
+find <dir> -type f -follow -print | zip -j <ZipFileName> -@

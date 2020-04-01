@@ -23,6 +23,6 @@ adb shell setprop log.tag.<tag> VERBOSE
 # 过滤日志级别
 adb logcat -s "*:<level>"
 
-$ level: printf "V\nD\nI\nW\nE\nA"
+$ level: echo 'V D I W E A' | tr ' ' '\n'
 
 

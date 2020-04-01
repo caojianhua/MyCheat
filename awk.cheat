@@ -1,4 +1,4 @@
-%awk, text
+% awk, text
 
 # 文件按列过滤打印
 cat <input_text> | awk '{print $1,$2,$3}'

@@ -16,4 +16,28 @@ git shortlog -s -n
 git push origin :refs/tags/<tag>
 
 # 删除远程分支
-git push origin :<branch>
+git push origin :`echo <remote_branch> | awk '{print $2}'`
+
+$ remote_branch: git ls-remote
+
+
+# 生成两个提交之间的patch(包含两个commit)
+git format-patch <commit1>..<commit2>
+
+# 生成某个提交的patch
+git format-patch -1 'echo <commit> | awk '{print $1}''
+
+$ commit: git log -20 --oneline
+
+# 检查patch文件
+git apply --stat <patch>
+
+
+# 检查patch文件是否可以使用
+git apply --check <patch>
+
+
+# 使用patch文件
+git am -s < <patch>
+
+$ patch: find . -name '*.patch'

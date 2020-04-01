@@ -1,0 +1,4 @@
+% text, encode, hex, base64
+
+# 16进制字符串转base64
+echo "<hex>" | xxd -r -p | base64
