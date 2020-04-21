@@ -1,0 +1,4 @@
+% ssh
+
+# 生成SSH秘钥对
+ssh-keygen -t rsa -C "<email>"

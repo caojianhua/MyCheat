@@ -6,6 +6,16 @@ keytool -v -list -keystore  <keystore>
 # 获取Android应用key hash 散列值
 keytool -exportcert -alias <alias> -keystore <keystore> | openssl sha1 -binary | openssl base64
 
+# 查看APK签名
+keytool -list -printcert -jarfile <apk_path>
+
+$ apk_path: find . -name "*.apk"
+
+# 查看JKS证书签名
+keytool -list -v -keystore <jks_path>  -alias <alias>  -storepass <store_password>
+
+$ jks_path: find . -name "*.jks"
+
 # 查看apk信息
 aapt dump badging <path>
 
