@@ -14,3 +14,11 @@ find <dir> -type f -follow -print | zip <ZipFileName> -@
 
 # 压缩某个目录下的所有文件(忽略目录结构)
 find <dir> -type f -follow -print | zip -j <ZipFileName> -@
+
+
+# 压缩某个目录下的指定文件(保留目录结构)
+find <dir> -type f -name "<name>"  -follow -print | zip -@ <ZipFileName>  
+
+
+# 压缩某个目录下的指定文件(忽略目录结构)
+find <dir> -type f -name "<name>"  -follow -print | zip -j -@ <ZipFileName>  

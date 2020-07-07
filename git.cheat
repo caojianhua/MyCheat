@@ -41,3 +41,11 @@ git apply --check <patch>
 git am -s < <patch>
 
 $ patch: find . -name '*.patch'
+
+
+# 查看当前分支结构
+git log --graph --decorate --oneline --simplify-by-decoration --all
+
+
+# 查看当前分支结构(gitk)
+gitk --simplify-by-decoration --all
