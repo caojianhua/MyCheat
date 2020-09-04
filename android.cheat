@@ -17,22 +17,30 @@ keytool -list -v -keystore <jks_path>  -alias <alias>  -storepass <store_passwor
 $ jks_path: find . -name "*.jks"
 
 # 查看apk信息
-aapt dump badging <path>
+aapt2 dump badging <path>
 
 # 显示当前activity堆栈
-adb shell dumpsys activity activities | sed -En -e '/Running activities/,/Run #0/p'
+adb -s <device_id> shell dumpsys activity activities | sed -En -e '/Running activities/,/Run #0/p'
 
 # 保存当前截屏
-adb shell /system/bin/screencap -p /sdcard/screenshot.png && adb pull /sdcard/screenshot.png <shot_dir>/$(date '+%Y%m%d%H%M%S').png && adb shell rm /sdcard/screenshot.png
+adb -s <device_id> shell /system/bin/screencap -p /sdcard/screenshot.png && adb pull /sdcard/screenshot.png <shot_dir>/$(date '+%Y%m%d%H%M%S').png && adb shell rm /sdcard/screenshot.png
 
 $ shot_dir: printf "~/Downloads/\n~/Desktop/"
 
 # 开启日志输出
-adb shell setprop log.tag.<tag> VERBOSE
+adb -s <device_id> shell setprop log.tag.<tag> VERBOSE
 
 # 过滤日志级别
-adb logcat -s "*:<level>"
+adb -s <device_id> logcat -s "*:<level>"
 
 $ level: echo 'V D I W E A' | tr ' ' '\n'
+
+# 输入文本
+adb -s <device_id> shell input text <text>
+
+$ device_id: adb devices | grep -v "List of" | awk '{print $1}'
+
+
+
 
 
