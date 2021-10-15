@@ -9,12 +9,8 @@ keytool -exportcert -alias <alias> -keystore <keystore> | openssl sha1 -binary |
 # 查看APK签名
 keytool -list -printcert -jarfile <apk_path>
 
-$ apk_path: find . -name "*.apk"
-
 # 查看JKS证书签名
 keytool -list -v -keystore <jks_path>  -alias <alias>  -storepass <store_password>
-
-$ jks_path: find . -name "*.jks"
 
 # 查看apk信息
 aapt2 dump badging <path>
@@ -22,10 +18,14 @@ aapt2 dump badging <path>
 # 显示当前activity堆栈
 adb -s <device_id> shell dumpsys activity activities | sed -En -e '/Running activities/,/Run #0/p'
 
+# 显示顶部activity
+adb -s <device_id> shell dumpsys activity top | grep ACTIVITY
+
+# 获取apk包的path
+adb -s <device_id> shell pm path <package>
+
 # 保存当前截屏
 adb -s <device_id> shell /system/bin/screencap -p /sdcard/screenshot.png && adb pull /sdcard/screenshot.png <shot_dir>/$(date '+%Y%m%d%H%M%S').png && adb shell rm /sdcard/screenshot.png
-
-$ shot_dir: printf "~/Downloads/\n~/Desktop/"
 
 # 开启日志输出
 adb -s <device_id> shell setprop log.tag.<tag> VERBOSE
@@ -33,12 +33,19 @@ adb -s <device_id> shell setprop log.tag.<tag> VERBOSE
 # 过滤日志级别
 adb -s <device_id> logcat -s "*:<level>"
 
-$ level: echo 'V D I W E A' | tr ' ' '\n'
-
 # 输入文本
 adb -s <device_id> shell input text <text>
 
+# 安装aab
+AAB_PATH=<aab_path> && java -jar /usr/local/bin/bundletool.jar build-apks --bundle=${AAB_PATH}  --output=${AAB_PATH}.apks --ks=<jks_path> --ks-key-alias=<alias>  --ks-pass=pass:<kspass> --key-pass=pass:<keypass> && java -jar /usr/local/bin/bundletool.jar install-apks --apks ${AAB_PATH}.apks && rm -rf ${AAB_PATH}.apks
+
+
+$ level: echo 'V D I W E A' | tr ' ' '\n'
 $ device_id: adb devices | grep -v "List of" | awk '{print $1}'
+$ shot_dir: printf "~/Downloads/\n~/Desktop/"
+$ apk_path: find . -name "*.apk"
+$ aab_path: find . -name "*.aab"
+$ jks_path: find . -name "*.jks"
 
 
 
