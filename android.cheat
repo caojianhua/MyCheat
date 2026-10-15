@@ -15,11 +15,17 @@ keytool -list -v -keystore <jks_path>  -alias <alias>  -storepass <store_passwor
 # 查看apk信息
 aapt2 dump badging <path>
 
+# 按包名启动app
+adb shell monkey -p <package_name> -c android.intent.category.LAUNCHER 1
+
 # 显示当前activity堆栈
 adb -s <device_id> shell dumpsys activity activities | sed -En -e '/Running activities/,/Run #0/p'
 
 # 显示顶部activity
 adb -s <device_id> shell dumpsys activity top | grep ACTIVITY
+
+# 监控顶部activity
+prev=""; while true; do cur=$(adb -s <device_id> shell dumpsys window | grep -e "mCurrentFocus" | grep -e "Window"); [ "$cur" != "$prev" ] && echo "$cur" && prev="$cur"; sleep 0.3; done
 
 # 获取apk包的path
 adb -s <device_id> shell pm path <package>
@@ -37,7 +43,44 @@ adb -s <device_id> logcat -s "*:<level>"
 adb -s <device_id> shell input text <text>
 
 # 安装aab
-AAB_PATH=<aab_path> && java -jar /usr/local/bin/bundletool.jar build-apks --bundle=${AAB_PATH}  --output=${AAB_PATH}.apks --ks=<jks_path> --ks-key-alias=<alias>  --ks-pass=pass:<kspass> --key-pass=pass:<keypass> && java -jar /usr/local/bin/bundletool.jar install-apks --apks ${AAB_PATH}.apks && rm -rf ${AAB_PATH}.apks
+AAB_PATH=<aab_path> && bundletool build-apks --bundle=${AAB_PATH}  --output=${AAB_PATH}.apks --ks=<jks_path> --ks-key-alias=<alias>  --ks-pass=pass:<kspass> --key-pass=pass:<keypass> && bundletool install-apks --apks ${AAB_PATH}.apks && rm -rf ${AAB_PATH}.apks
+
+# 打开手机GooglePlay指定应用
+adb -s <device_id> shell am start -a android.intent.action.VIEW -d "market://details?id=<package>"
+
+# 使用随机证书重签名apk
+R=$(openssl rand -base64 9 | tr -dc A-Za-z0-9); JKS="$R.jks"; APK="<apk_path>"; keytool -genkeypair -alias "$R" -keyalg RSA -keysize 2048 -validity 3650 -keystore "$JKS" -storepass "$R" -keypass "$R" -dname "CN=Random, OU=Dev, O=Company, L=City, ST=State, C=CN" -storetype JKS; jarsigner -verbose -keystore "$JKS" -storepass "$R" -keypass "$R" "$APK" "$R"; cp "$APK" "${APK%.apk}_signed.apk"; echo "签名完成: ${APK%.apk}_signed.apk"
+
+# 使用随机证书重签名aab
+R=$(openssl rand -base64 9 | tr -dc A-Za-z0-9); JKS="$R.jks"; APK="<aab_path>"; keytool -genkeypair -alias "$R" -keyalg RSA -keysize 2048 -validity 3650 -keystore "$JKS" -storepass "$R" -keypass "$R" -dname "CN=Random, OU=Dev, O=Company, L=City, ST=State, C=CN" -storetype JKS; jarsigner -verbose -keystore "$JKS" -storepass "$R" -keypass "$R" "$APK" "$R"; cp "$APK" "${APK%.aab}_signed.aab"; echo "签名完成: ${APK%.aab}_signed.aab"
+
+# 生成随机jks证书
+R=$(openssl rand -base64 9 | tr -dc A-Za-z0-9); JKS="$R.jks"; keytool -genkeypair -alias "$R" -keyalg RSA -keysize 2048 -validity 3650 -keystore "$JKS" -storepass "$R" -keypass "$R" -dname "CN=Random, OU=Dev, O=Company, L=City, ST=State, C=CN" -storetype JKS
+
+# 恢复崩溃日志, retrace android crash log
+retrace <mapping_file>  <crash_log_file>
+
+# 合并xapk
+XAPK="<xapk_file>"; BASENAME=$(basename "$XAPK" .xapk); TMP_DIR="./${BASENAME}_temp"; [[ "$TMP_DIR" == ./*_temp ]] && [ -d "$TMP_DIR" ] && echo "删除旧临时目录 $TMP_DIR" && rm -rf "$TMP_DIR"; mkdir -p "$TMP_DIR"; unzip -q "$XAPK" -d "$TMP_DIR"; BASE_APK=$(find "$TMP_DIR" -name "*.apk" | head -n1); apktool d "$BASE_APK" -o "$TMP_DIR/decompiled" -f; AXML="$TMP_DIR/decompiled/AndroidManifest.xml"; python3 - <<EOF
+import xml.etree.ElementTree as ET, os
+NS='http://schemas.android.com/apk/res/android'
+axml_file=os.environ['AXML']
+ET.register_namespace('android', NS)
+tree=ET.parse(axml_file)
+root=tree.getroot()
+for attr in ["isSplitRequired","requiredSplitTypes","splitTypes","split"]:
+    key="{%s}%s"%(NS,attr)
+    if key in root.attrib:
+        del root.attrib[key]
+for uses_split in root.findall("uses-split"):
+    root.remove(uses_split)
+app=root.find("application")
+if app is not None:
+    if app.attrib.get("{%s}extractNativeLibs"%NS)=="false":
+        app.attrib["{%s}extractNativeLibs"%NS]="true"
+tree.write(axml_file, encoding="utf-8", xml_declaration=True)
+EOF
+OBB_DIR=$(find "$TMP_DIR" -type d -name "OBB"); [ -d "$OBB_DIR" ] && mkdir -p "$TMP_DIR/decompiled/assets" && cp -r "$OBB_DIR"/* "$TMP_DIR/decompiled/assets/"; OUTPUT_APK="$(pwd)/${BASENAME}_merged.apk"; apktool b "$TMP_DIR/decompiled" -o "$OUTPUT_APK"; echo "生成完成: $OUTPUT_APK"; [[ "$TMP_DIR" == ./*_temp ]] && rm -rf "$TMP_DIR"
 
 
 $ level: echo 'V D I W E A' | tr ' ' '\n'
@@ -45,7 +88,9 @@ $ device_id: adb devices | grep -v "List of" | awk '{print $1}'
 $ shot_dir: printf "~/Downloads/\n~/Desktop/"
 $ apk_path: find . -name "*.apk"
 $ aab_path: find . -name "*.aab"
-$ jks_path: find . -name "*.jks"
+$ jks_path: find . \( -name "*.jks" -o -name "*.keystore" \)
+$ xapk_file: find . -name "*.xapk"
+$ mapping_file: find . -name "*mapping.txt"
 
 
 
